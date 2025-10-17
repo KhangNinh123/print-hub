@@ -11,4 +11,4 @@ A Spring Boot project for managing printers and scanners store.
 - Java 21
 - Spring Boot 3.x
 - Spring Data JPA
-- MySQL
+- Maria BD
