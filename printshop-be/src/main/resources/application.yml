@@ -1,10 +1,20 @@
+server:
+  port: 8081
+
 spring:
   datasource:
-    url: jdbc:mariadb://localhost:3306/printshop?useUnicode=true&characterEncoding=utf8
-    username: Ninh
+    url: jdbc:mariadb://localhost:3307/printshop?useUnicode=true&characterEncoding=utf8
+    username: root
     password: 1234
   jpa:
     hibernate:
-      ddl-auto: validate    # dev có th? dùng update
+      ddl-auto: update    # dev cÃ³ thá»ƒ dÃ¹ng update
     properties:
       hibernate.dialect: org.hibernate.dialect.MariaDBDialect
+    show-sql: true
+
+jwt:
+  secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+  expiration: 86400000 # 24 hours
+  refresh-token:
+    expiration: 604800000 # 7 days
