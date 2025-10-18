@@ -1,10 +1,10 @@
 spring:
   datasource:
     url: jdbc:mariadb://localhost:3306/printshop?useUnicode=true&characterEncoding=utf8
-    username: Ninh
-    password: 1234
+    username: root
+    password: root
   jpa:
     hibernate:
-      ddl-auto: validate    # dev có th? dùng update
+      ddl-auto: validate    # dev cï¿½ th? dï¿½ng update
     properties:
       hibernate.dialect: org.hibernate.dialect.MariaDBDialect
