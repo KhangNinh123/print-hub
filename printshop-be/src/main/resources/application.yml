@@ -1,10 +1,70 @@
 spring:
+  application:
+    name: printshop
+  thymeleaf:
+    cache: false
+    prefix: classpath:/templates/
+    suffix: .html
+
   datasource:
-    url: jdbc:mariadb://localhost:3306/printshop?useUnicode=true&characterEncoding=utf8
-    username: root
-    password: root
+    url: jdbc:mysql://localhost:3306/printshop?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Ho_Chi_Minh
+    username: root           # đổi nếu bạn dùng user khác
+    password: 1234           # đổi mật khẩu tương ứng
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      idle-timeout: 30000
+      connection-timeout: 20000
+      max-lifetime: 600000
+
   jpa:
+    open-in-view: false
+    show-sql: true
     hibernate:
-      ddl-auto: validate    # dev c� th? d�ng update
-    properties:
-      hibernate.dialect: org.hibernate.dialect.MariaDBDialect
+      ddl-auto: validate      # dev có thể tạm dùng "update"
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+
+  sql:
+    init:
+      mode: always            # nếu có schema.sql/data.sql thì sẽ chạy
+      continue-on-error: true
+
+server:
+  port: 8085
+
+  #spring:
+  #  application:
+  #    name: printshop
+  #
+  #  thymeleaf:
+  #    cache: false
+  #    prefix: classpath:/templates/
+  #    suffix: .html
+  #
+  #  datasource:
+  #    url: jdbc:mariadb://localhost:3306/printshop?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Ho_Chi_Minh
+  #    username: root
+  #    password: 1234
+  #    driver-class-name: org.mariadb.jdbc.Driver
+  #    hikari:
+  #      maximum-pool-size: 10
+  #      minimum-idle: 2
+  #      idle-timeout: 30000
+  #      connection-timeout: 20000
+  #      max-lifetime: 600000
+  #
+  #  jpa:
+  #    open-in-view: false
+  #    show-sql: true
+  #    hibernate:
+  #      ddl-auto: validate     # dev có thể tạm "update"
+  #    database-platform: org.hibernate.dialect.MariaDBDialect
+  #
+  #  sql:
+  #    init:
+  #      mode: always           # nếu có schema.sql/data.sql thì sẽ chạy
+  #      continue-on-error: true
+  #
+  #server:
+  #  port: 8085
