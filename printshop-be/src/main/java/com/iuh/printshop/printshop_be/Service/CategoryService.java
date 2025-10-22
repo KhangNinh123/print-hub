@@ -1,41 +1,48 @@
-package com.iuh.printshop.printshop_be.Service;
+package com.iuh.printshop.printshop_be.service;
 
-import com.iuh.printshop.printshop_be.Repository.CategoryRepository;
-import com.iuh.printshop.printshop_be.model.Category;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.iuh.printshop.printshop_be.entity.Category;
+import com.iuh.printshop.printshop_be.repository.CategoryRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class CategoryService {
-    @Autowired
-    private CategoryRepository repo;
+    private final CategoryRepository categoryRepository;
 
-
-    public List<Category> findAll() {
-        return repo.findAll();
+    public Category createCategory(Category category) {
+        return categoryRepository.save(category);
     }
 
-
-    public Category findById(Integer id) {
-        Optional<Category> category = repo.findById(id);
-        return category.orElse(null);
+    public List<Category> getAllCategories() {
+        return categoryRepository.findAll();
     }
 
-
-    public Category save(Category category) {
-        return repo.save(category);
+    public Optional<Category> getCategoryById(Integer id) {
+        return categoryRepository.findById(id);
     }
 
-
-    public void deleteById(Integer id) {
-        repo.deleteById(id);
+    public Optional<Category> updateCategory(Integer id, Category updatedCategory) {
+        return categoryRepository.findById(id).map(category -> {
+            category.setName(updatedCategory.getName());
+            category.setDescription(updatedCategory.getDescription());
+            return categoryRepository.save(category);
+        });
     }
 
+    public boolean deleteCategory(Integer id) {
+        if (categoryRepository.existsById(id)) {
+            categoryRepository.deleteById(id);
+            return true;
+        }
+        return false;
+    }
 
-    public Category findByName(String name) {
-        return repo.findByName(name);
+    public Optional<Category> getCategoryByName(String name) {
+        return categoryRepository.findByName(name);
     }
 }
+

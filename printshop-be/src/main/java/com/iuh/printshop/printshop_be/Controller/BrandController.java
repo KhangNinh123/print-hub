@@ -1,8 +1,9 @@
-package com.iuh.printshop.printshop_be.Controller;
+package com.iuh.printshop.printshop_be.controller;
 
-import com.iuh.printshop.printshop_be.Service.BrandService;
-import com.iuh.printshop.printshop_be.model.Brand;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.iuh.printshop.printshop_be.entity.Brand;
+import com.iuh.printshop.printshop_be.service.BrandService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,51 +11,42 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/brands")
-@CrossOrigin(origins = "*")
+@RequiredArgsConstructor
 public class BrandController {
-    @Autowired
-    private BrandService brandService;
+    private final BrandService brandService;
 
-    // Lấy danh sách tất cả Brand
+    @PostMapping
+    public ResponseEntity<Brand> createBrand(@RequestBody Brand brand) {
+        Brand savedBrand = brandService.createBrand(brand);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedBrand);
+    }
+
     @GetMapping
     public ResponseEntity<List<Brand>> getAllBrands() {
-        List<Brand> brands = brandService.findAll();
+        List<Brand> brands = brandService.getAllBrands();
         return ResponseEntity.ok(brands);
     }
 
-    // Lấy Brand theo ID
     @GetMapping("/{id}")
     public ResponseEntity<Brand> getBrandById(@PathVariable Integer id) {
-        Brand brand = brandService.findById(id);
-        return (brand != null)
-                ? ResponseEntity.ok(brand)
-                : ResponseEntity.notFound().build();
+        return brandService.getBrandById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    // Tìm Brand theo tên
-    @GetMapping("/search")
-    public ResponseEntity<Brand> getBrandByName(@RequestParam String name) {
-        Brand brand = brandService.findByName(name);
-        return (brand != null)
-                ? ResponseEntity.ok(brand)
-                : ResponseEntity.notFound().build();
+    @PutMapping("/{id}")
+    public ResponseEntity<Brand> updateBrand(@PathVariable Integer id, @RequestBody Brand brand) {
+        return brandService.updateBrand(id, brand)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    // Thêm mới hoặc cập nhật Brand
-    @PostMapping
-    public ResponseEntity<Brand> createOrUpdateBrand(@RequestBody Brand brand) {
-        Brand savedBrand = brandService.save(brand);
-        return ResponseEntity.ok(savedBrand);
-    }
-
-    // Xoá Brand theo ID
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBrand(@PathVariable Integer id) {
-        Brand brand = brandService.findById(id);
-        if (brand != null) {
-            brandService.deleteById(id);
+        if (brandService.deleteBrand(id)) {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();
     }
 }
+

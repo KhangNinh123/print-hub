@@ -1,8 +1,9 @@
-package com.iuh.printshop.printshop_be.Controller;
+package com.iuh.printshop.printshop_be.controller;
 
-import com.iuh.printshop.printshop_be.Service.CategoryService;
-import com.iuh.printshop.printshop_be.model.Category;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.iuh.printshop.printshop_be.entity.Category;
+import com.iuh.printshop.printshop_be.service.CategoryService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,52 +11,42 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/categories")
-@CrossOrigin(origins = "*") // Cho phép frontend gọi API từ domain khác
+@RequiredArgsConstructor
 public class CategoryController {
+    private final CategoryService categoryService;
 
-    @Autowired
-    private CategoryService categoryService;
+    @PostMapping
+    public ResponseEntity<Category> createCategory(@RequestBody Category category) {
+        Category savedCategory = categoryService.createCategory(category);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedCategory);
+    }
 
-    // Lấy tất cả categories
     @GetMapping
     public ResponseEntity<List<Category>> getAllCategories() {
-        List<Category> categories = categoryService.findAll();
+        List<Category> categories = categoryService.getAllCategories();
         return ResponseEntity.ok(categories);
     }
 
-    // Lấy category theo ID
     @GetMapping("/{id}")
     public ResponseEntity<Category> getCategoryById(@PathVariable Integer id) {
-        Category category = categoryService.findById(id);
-        return (category != null)
-                ? ResponseEntity.ok(category)
-                : ResponseEntity.notFound().build();
+        return categoryService.getCategoryById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    // Tìm category theo tên
-    @GetMapping("/search")
-    public ResponseEntity<Category> getCategoryByName(@RequestParam String name) {
-        Category category = categoryService.findByName(name);
-        return (category != null)
-                ? ResponseEntity.ok(category)
-                : ResponseEntity.notFound().build();
+    @PutMapping("/{id}")
+    public ResponseEntity<Category> updateCategory(@PathVariable Integer id, @RequestBody Category category) {
+        return categoryService.updateCategory(id, category)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    // Thêm mới hoặc cập nhật category
-    @PostMapping
-    public ResponseEntity<Category> createOrUpdateCategory(@RequestBody Category category) {
-        Category savedCategory = categoryService.save(category);
-        return ResponseEntity.ok(savedCategory);
-    }
-
-    // Xóa category theo ID
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCategory(@PathVariable Integer id) {
-        Category category = categoryService.findById(id);
-        if (category != null) {
-            categoryService.deleteById(id);
+        if (categoryService.deleteCategory(id)) {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();
     }
 }
+
