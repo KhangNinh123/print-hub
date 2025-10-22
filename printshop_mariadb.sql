@@ -1,183 +1,184 @@
--- =========================
--- PrintShop - Minimal Schema
--- MariaDB / InnoDB / utf8mb4
--- =========================
+-- printshop_mariadb.sql
+-- Schema for "Web giới thiệu & bán máy in / máy scan" (MariaDB)
+-- Engine: InnoDB, Charset: utf8mb4
+-- Updated to match current Entity classes
+
+-- 0) Create database
 CREATE DATABASE IF NOT EXISTS printshop
-  CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
 USE printshop;
 
--- 1) Auth
-CREATE TABLE roles (
-                       id INT AUTO_INCREMENT PRIMARY KEY,
-                       name VARCHAR(30) NOT NULL UNIQUE          -- ROLE_ADMIN / ROLE_USER
+-- 1) Roles & Users
+CREATE TABLE IF NOT EXISTS roles (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(30) NOT NULL UNIQUE -- 'ROLE_ADMIN', 'ROLE_CUSTOMER'
 ) ENGINE=InnoDB;
 
-CREATE TABLE users (
-                       id INT AUTO_INCREMENT PRIMARY KEY,
-                       email VARCHAR(120) NOT NULL UNIQUE,
-                       password_hash VARCHAR(200) NOT NULL,
-                       full_name VARCHAR(120) NOT NULL,
-                       phone VARCHAR(20),
-                       default_address VARCHAR(255),
-                       is_active TINYINT(1) NOT NULL DEFAULT 1,
-                       created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE IF NOT EXISTS users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(120) NOT NULL UNIQUE,
+  password_hash VARCHAR(200) NOT NULL,
+  full_name VARCHAR(120) NOT NULL,
+  phone VARCHAR(20),
+  default_address VARCHAR(255),
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
-CREATE TABLE user_roles (
-                            user_id INT NOT NULL,
-                            role_id INT NOT NULL,
-                            PRIMARY KEY (user_id, role_id),
-                            CONSTRAINT fk_ur_u FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-                            CONSTRAINT fk_ur_r FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
+CREATE TABLE IF NOT EXISTS user_roles (
+  user_id INT NOT NULL,
+  role_id INT NOT NULL,
+  PRIMARY KEY (user_id, role_id),
+  CONSTRAINT fk_user_roles_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_user_roles_role FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
--- 2) Catalog (Product / Category / Brand)
-CREATE TABLE categories (
-                            id INT AUTO_INCREMENT PRIMARY KEY,
-                            name VARCHAR(80) NOT NULL UNIQUE
+-- 2) Catalog (Brands, Categories, Products, Product Images)
+-- Updated Brand table with description
+CREATE TABLE IF NOT EXISTS brands (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(80) NOT NULL UNIQUE,
+  description TEXT -- Added description field
 ) ENGINE=InnoDB;
 
-CREATE TABLE brands (
-                        id INT AUTO_INCREMENT PRIMARY KEY,
-                        name VARCHAR(80) NOT NULL UNIQUE
+-- Updated Category table with description
+CREATE TABLE IF NOT EXISTS categories (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(80) NOT NULL UNIQUE,
+  description TEXT -- Added description field
 ) ENGINE=InnoDB;
 
-CREATE TABLE products (
-                          id INT AUTO_INCREMENT PRIMARY KEY,
-                          sku VARCHAR(50) UNIQUE,
-                          name VARCHAR(200) NOT NULL,
-                          category_id INT NOT NULL,
-                          brand_id INT,
-                          price DECIMAL(12,2) NOT NULL CHECK (price >= 0),
-                          stock INT NOT NULL DEFAULT 0 CHECK (stock >= 0),
-                          warranty_months INT DEFAULT 12,
-                          is_active TINYINT(1) NOT NULL DEFAULT 1,
-                          created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                          CONSTRAINT fk_p_c FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE RESTRICT,
-                          CONSTRAINT fk_p_b FOREIGN KEY (brand_id) REFERENCES brands(id) ON DELETE SET NULL
-) ENGINE=InnoDB;
-CREATE INDEX idx_p_cat ON products(category_id);
-CREATE INDEX idx_p_price ON products(price);
-
--- 3) Cart
-CREATE TABLE carts (
-                       id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                       user_id INT NULL,                  -- null = guest
-                       cart_key CHAR(36) NULL,            -- UUID guest (cookie/localStorage)
-                       status ENUM('ACTIVE','ORDERED','ABANDONED') NOT NULL DEFAULT 'ACTIVE',
-                       created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                       updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                       CONSTRAINT fk_cart_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
-                       CONSTRAINT uq_cart_key UNIQUE (cart_key)
+-- Updated Product table to match Entity
+CREATE TABLE IF NOT EXISTS products (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(200) NOT NULL UNIQUE,
+  description TEXT, -- Added description field
+  price DECIMAL(12,2) NOT NULL,
+  stock_quantity INT NOT NULL DEFAULT 0, -- Changed from 'stock' to 'stock_quantity'
+  image_url VARCHAR(255), -- Changed from 'thumbnail_url' to 'image_url'
+  category_id INT NOT NULL,
+  brand_id INT NOT NULL, -- Changed to NOT NULL to match Entity
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_products_category FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT fk_products_brand FOREIGN KEY (brand_id) REFERENCES brands(id) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT chk_products_price CHECK (price >= 0),
+  CONSTRAINT chk_products_stock CHECK (stock_quantity >= 0)
 ) ENGINE=InnoDB;
 
-CREATE TABLE cart_items (
-                            cart_id BIGINT NOT NULL,
-                            product_id INT NOT NULL,
-                            quantity INT NOT NULL CHECK (quantity > 0),
-                            PRIMARY KEY (cart_id, product_id),
-                            CONSTRAINT fk_ci_cart FOREIGN KEY (cart_id) REFERENCES carts(id) ON DELETE CASCADE,
-                            CONSTRAINT fk_ci_product FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE RESTRICT
+CREATE INDEX idx_products_category ON products(category_id);
+CREATE INDEX idx_products_brand ON products(brand_id);
+CREATE INDEX idx_products_price ON products(price);
+CREATE FULLTEXT INDEX ftx_products_name ON products(name);
+CREATE FULLTEXT INDEX ftx_products_description ON products(description);
+
+-- Product Images table (keeping original structure)
+CREATE TABLE IF NOT EXISTS product_images (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  product_id INT NOT NULL,
+  url VARCHAR(255) NOT NULL,
+  is_primary TINYINT(1) NOT NULL DEFAULT 0,
+  CONSTRAINT fk_product_images_product FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
--- 4) Orders
-CREATE TABLE orders (
-                        id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                        code VARCHAR(20) NOT NULL UNIQUE,          -- ví dụ: PS-2025-000001
-                        user_id INT NULL,                          -- có thể null nếu guest
-                        full_name VARCHAR(120) NOT NULL,
-                        phone VARCHAR(20) NOT NULL,
-                        shipping_address VARCHAR(255) NOT NULL,
-                        status VARCHAR(30) NOT NULL DEFAULT 'PENDING',         -- PENDING/CONFIRMED/PAID/SHIPPING/COMPLETED/CANCELLED
-                        payment_method VARCHAR(20) NOT NULL,                   -- COD/ONLINE (chưa cần bảng payment)
-                        payment_status VARCHAR(20) NOT NULL DEFAULT 'UNPAID',  -- UNPAID/PAID/FAILED
-                        subtotal DECIMAL(12,2) NOT NULL,
-                        shipping_fee DECIMAL(12,2) NOT NULL DEFAULT 0,
-                        total DECIMAL(12,2) NOT NULL,
-                        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                        CONSTRAINT fk_o_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
-) ENGINE=InnoDB;
-CREATE INDEX idx_o_user ON orders(user_id);
-
-CREATE TABLE order_details (
-                               order_id BIGINT NOT NULL,
-                               product_id INT NOT NULL,
-                               price DECIMAL(12,2) NOT NULL CHECK (price >= 0),  -- snapshot giá lúc mua
-                               quantity INT NOT NULL CHECK (quantity > 0),
-                               PRIMARY KEY (order_id, product_id),
-                               CONSTRAINT fk_od_order FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
-                               CONSTRAINT fk_od_product FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE RESTRICT
+-- 3) Orders (keeping original structure)
+CREATE TABLE IF NOT EXISTS orders (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  code VARCHAR(20) NOT NULL UNIQUE, -- e.g., PS-2025-000123
+  user_id INT NULL,
+  full_name VARCHAR(120) NOT NULL,
+  phone VARCHAR(20) NOT NULL,
+  shipping_address VARCHAR(255) NOT NULL,
+  status VARCHAR(30) NOT NULL DEFAULT 'PENDING',       -- PENDING/CONFIRMED/PAID/SHIPPING/COMPLETED/CANCELLED
+  payment_method VARCHAR(20) NOT NULL,                  -- COD/ONLINE
+  payment_status VARCHAR(20) NOT NULL DEFAULT 'UNPAID', -- UNPAID/PAID/FAILED
+  subtotal DECIMAL(12,2) NOT NULL,
+  shipping_fee DECIMAL(12,2) NOT NULL DEFAULT 0,
+  total DECIMAL(12,2) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_orders_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
--- 5) Reviews
-CREATE TABLE reviews (
-                         id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                         product_id INT NOT NULL,
-                         user_id INT NOT NULL,
-                         rating TINYINT NOT NULL CHECK (rating BETWEEN 1 AND 5),
-                         title VARCHAR(120),
-                         content TEXT,
-                         created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                         CONSTRAINT fk_r_p FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
-                         CONSTRAINT fk_r_u FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-                         CONSTRAINT uq_review_once UNIQUE (product_id, user_id)  -- 1 user/1 sp: 1 review
+CREATE INDEX idx_orders_user ON orders(user_id);
+CREATE INDEX idx_orders_code ON orders(code);
+
+CREATE TABLE IF NOT EXISTS order_items (
+  order_id BIGINT NOT NULL,
+  product_id INT NOT NULL,
+  price DECIMAL(12,2) NOT NULL,
+  quantity INT NOT NULL,
+  PRIMARY KEY (order_id, product_id),
+  CONSTRAINT fk_order_items_order FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_order_items_product FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT chk_order_items_qty CHECK (quantity > 0),
+  CONSTRAINT chk_order_items_price CHECK (price >= 0)
 ) ENGINE=InnoDB;
 
--- Roles & Users
-INSERT INTO roles(name) VALUES ('ROLE_ADMIN'), ('ROLE_USER')
-    ON DUPLICATE KEY UPDATE name=VALUES(name);
+-- 3b) Optional: Order status history
+CREATE TABLE IF NOT EXISTS order_status_history (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  order_id BIGINT NOT NULL,
+  status VARCHAR(30) NOT NULL,
+  note VARCHAR(255),
+  changed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_osh_order FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB;
 
-INSERT INTO users(email,password_hash,full_name,phone,default_address,is_active) VALUES
-                                                                                     ('admin@shop.local','Hoilamchi3@','Quản trị viên','0900000001','123 Q1, HCM',1),
-                                                                                     ('user@shop.local',  'Hoilamchi2!','Nguyễn Văn A','0900000002','45 Q10, HCM',1)
-    ON DUPLICATE KEY UPDATE full_name=VALUES(full_name);
+-- 3c) Optional: Payments (for later online gateways)
+CREATE TABLE IF NOT EXISTS payments (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  order_id BIGINT NOT NULL,
+  provider VARCHAR(40), -- VNPay/MoMo/etc.
+  txn_ref VARCHAR(100),
+  amount DECIMAL(12,2) NOT NULL,
+  status VARCHAR(20) NOT NULL, -- SUCCESS/FAIL/PENDING
+  paid_at DATETIME NULL,
+  CONSTRAINT fk_payments_order FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB;
 
-INSERT IGNORE INTO user_roles(user_id,role_id)
-SELECT u.id,r.id FROM users u JOIN roles r
-WHERE (u.email='admin@shop.local' AND r.name='ROLE_ADMIN')
-   OR (u.email='user@shop.local' AND r.name='ROLE_USER');
+-- 4) Seed data
+INSERT INTO roles(name) VALUES ('ROLE_ADMIN'), ('ROLE_CUSTOMER')
+  ON DUPLICATE KEY UPDATE name = VALUES(name);
 
--- Catalog
-INSERT INTO categories(name) VALUES ('Máy in'),('Máy scan')
-    ON DUPLICATE KEY UPDATE name=VALUES(name);
-INSERT INTO brands(name) VALUES ('HP'),('Canon'),('Epson')
-    ON DUPLICATE KEY UPDATE name=VALUES(name);
+-- Updated brand data with descriptions
+INSERT INTO brands(name, description) VALUES 
+  ('HP', 'Hewlett-Packard - Thương hiệu máy in và máy scan hàng đầu thế giới'),
+  ('Canon', 'Canon Inc. - Chuyên về máy in, máy scan và thiết bị văn phòng'),
+  ('Epson', 'Seiko Epson Corporation - Nổi tiếng với công nghệ in phun và máy scan')
+  ON DUPLICATE KEY UPDATE description = VALUES(description);
 
-INSERT INTO products(sku,name,category_id,brand_id,price,stock,warranty_months,is_active) VALUES
-                                                                                              ('HP-LJ-1100','HP LaserJet 1100',(SELECT id FROM categories WHERE name='Máy in'),(SELECT id FROM brands WHERE name='HP'),2900000,20,12,1),
-                                                                                              ('CANON-LBP2900','Canon LBP 2900',(SELECT id FROM categories WHERE name='Máy in'),(SELECT id FROM brands WHERE name='Canon'),2100000,12,12,1),
-                                                                                              ('EPSON-V39','Epson Perfection V39',(SELECT id FROM categories WHERE name='Máy scan'),(SELECT id FROM brands WHERE name='Epson'),1900000,10,12,1)
-    ON DUPLICATE KEY UPDATE price=VALUES(price), stock=VALUES(stock);
+-- Updated category data with descriptions
+INSERT INTO categories(name, description) VALUES 
+  ('Máy in', 'Các loại máy in laser, phun màu, đa chức năng cho văn phòng và gia đình'),
+  ('Máy scan', 'Máy quét tài liệu, hình ảnh với độ phân giải cao')
+  ON DUPLICATE KEY UPDATE description = VALUES(description);
 
--- Cart demo (user@shop.local có 1 giỏ 2 sp)
-SET @uid := (SELECT id FROM users WHERE email='user@shop.local');
-INSERT INTO carts(user_id,status) SELECT @uid,'ACTIVE'
-    WHERE NOT EXISTS(SELECT 1 FROM carts WHERE user_id=@uid AND status='ACTIVE');
-SET @cid := (SELECT id FROM carts WHERE user_id=@uid AND status='ACTIVE' LIMIT 1);
-SET @p1 := (SELECT id FROM products WHERE sku='HP-LJ-1100');
-SET @p2 := (SELECT id FROM products WHERE sku='EPSON-V39');
+-- Updated sample products with descriptions and new field names
+INSERT INTO products(name, description, price, stock_quantity, image_url, category_id, brand_id)
+VALUES
+  ('HP LaserJet 1100', 'Máy in laser đen trắng A4, tốc độ in nhanh, tiết kiệm mực', 2900000, 20, NULL, (SELECT id FROM categories WHERE name='Máy in'), (SELECT id FROM brands WHERE name='HP')),
+  ('HP Ink Tank 415', 'Máy in phun màu với bình mực lớn, kết nối WiFi, tiết kiệm chi phí', 3500000, 15, NULL, (SELECT id FROM categories WHERE name='Máy in'), (SELECT id FROM brands WHERE name='HP')),
+  ('Canon PIXMA G2010', 'Máy in phun màu đa chức năng, bình mực tích hợp, chất lượng cao', 2800000, 25, NULL, (SELECT id FROM categories WHERE name='Máy in'), (SELECT id FROM brands WHERE name='Canon')),
+  ('Canon LBP 2900', 'Máy in laser đen trắng nhỏ gọn, phù hợp văn phòng nhỏ', 2100000, 12, NULL, (SELECT id FROM categories WHERE name='Máy in'), (SELECT id FROM brands WHERE name='Canon')),
+  ('Epson EcoTank L3110', 'Máy in phun màu với hệ thống bình mực EcoTank, tiết kiệm tối đa', 3300000, 18, NULL, (SELECT id FROM categories WHERE name='Máy in'), (SELECT id FROM brands WHERE name='Epson')),
+  ('Epson Perfection V39', 'Máy scan phẳng độ phân giải cao 4800 dpi, phù hợp scan tài liệu', 1900000, 10, NULL, (SELECT id FROM categories WHERE name='Máy scan'), (SELECT id FROM brands WHERE name='Epson')),
+  ('Canon CanoScan LiDE 300', 'Máy scan phẳng nhỏ gọn, kết nối USB, dễ sử dụng', 1600000, 14, NULL, (SELECT id FROM categories WHERE name='Máy scan'), (SELECT id FROM brands WHERE name='Canon')),
+  ('HP ScanJet 200', 'Máy scan phẳng đa chức năng, độ phân giải 2400 dpi', 1750000, 8, NULL, (SELECT id FROM categories WHERE name='Máy scan'), (SELECT id FROM brands WHERE name='HP')),
+  ('HP Laser 107w', 'Máy in laser đen trắng có WiFi, thiết kế nhỏ gọn', 2400000, 16, NULL, (SELECT id FROM categories WHERE name='Máy in'), (SELECT id FROM brands WHERE name='HP')),
+  ('Epson DS-1630', 'Máy scan đa chức năng với ADF, phù hợp văn phòng lớn', 5200000, 5, NULL, (SELECT id FROM categories WHERE name='Máy scan'), (SELECT id FROM brands WHERE name='Epson'))
+ON DUPLICATE KEY UPDATE 
+  description = VALUES(description), 
+  price = VALUES(price), 
+  stock_quantity = VALUES(stock_quantity);
 
-INSERT INTO cart_items(cart_id,product_id,quantity) VALUES
-    (@cid,@p1,1) ON DUPLICATE KEY UPDATE quantity=VALUES(quantity);
-INSERT INTO cart_items(cart_id,product_id,quantity) VALUES
-    (@cid,@p2,2) ON DUPLICATE KEY UPDATE quantity=VALUES(quantity);
+-- Helpful views (optional)
+-- CREATE VIEW v_order_summary AS
+--   SELECT o.id, o.code, o.user_id, o.status, o.payment_status, o.total, o.created_at
+--   FROM orders o;
 
--- Tạo 1 order từ giỏ (mẫu)
-SET @sub := (SELECT SUM(ci.quantity * p.price) FROM cart_items ci JOIN products p ON p.id=ci.product_id WHERE ci.cart_id=@cid);
-SET @ship := 30000;
-DELETE FROM order_details WHERE order_id IN (SELECT id FROM orders WHERE code='PS-000001');
-DELETE FROM orders WHERE code='PS-000001';
-INSERT INTO orders(code,user_id,full_name,phone,shipping_address,status,payment_method,payment_status,subtotal,shipping_fee,total)
-VALUES ('PS-000001',@uid,'Nguyễn Văn A','0900000002','45 Q10, HCM','CONFIRMED','COD','UNPAID',IFNULL(@sub,0),@ship,IFNULL(@sub,0)+@ship);
-SET @oid := LAST_INSERT_ID();
-
-INSERT INTO order_details(order_id,product_id,price,quantity)
-SELECT @oid, ci.product_id, p.price, ci.quantity
-FROM cart_items ci JOIN products p ON p.id=ci.product_id
-WHERE ci.cart_id=@cid;
-
--- Reviews mẫu
-INSERT INTO reviews(product_id,user_id,rating,title,content) VALUES
-                                                                 ((SELECT id FROM products WHERE sku='HP-LJ-1100'), @uid, 5,'Tốt','In nhanh, rõ.'),
-                                                                 ((SELECT id FROM products WHERE sku='EPSON-V39'),  @uid, 4,'Ổn','Scan đủ dùng.')
-    ON DUPLICATE KEY UPDATE rating=VALUES(rating), title=VALUES(title), content=VALUES(content);
+-- Notes:
+-- - Seed user/admin should be created via application (register + role assign) to ensure password hashing (BCrypt).
+-- - Consider adding triggers for stock deduction upon status change if you handle stock at DB-level (else, do it in service layer).
+-- - Updated schema to match current Entity classes with description fields and renamed columns.
