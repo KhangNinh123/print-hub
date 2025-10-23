@@ -42,7 +42,7 @@ print-hub/
 ### Yêu cầu hệ thống
 - Java 21+
 - MariaDB
-- Maven (hoặc sử dụng Maven Wrapper)
+- Maven 
 
 ### Cài đặt Database
 1. Tạo database MariaDB
