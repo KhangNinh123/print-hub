@@ -3,7 +3,7 @@
 -- MariaDB / InnoDB / utf8mb4
 -- =========================
 CREATE DATABASE IF NOT EXISTS printshop
-  CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+    CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE printshop;
 
 -- 1) Auth
@@ -125,12 +125,12 @@ CREATE TABLE reviews (
 
 -- Roles & Users
 INSERT INTO roles(name) VALUES ('ROLE_ADMIN'), ('ROLE_USER')
-    ON DUPLICATE KEY UPDATE name=VALUES(name);
+ON DUPLICATE KEY UPDATE name=VALUES(name);
 
 INSERT INTO users(email,password_hash,full_name,phone,default_address,is_active) VALUES
                                                                                      ('admin@shop.local','Hoilamchi3@','Quản trị viên','0900000001','123 Q1, HCM',1),
                                                                                      ('user@shop.local',  'Hoilamchi2!','Nguyễn Văn A','0900000002','45 Q10, HCM',1)
-    ON DUPLICATE KEY UPDATE full_name=VALUES(full_name);
+ON DUPLICATE KEY UPDATE full_name=VALUES(full_name);
 
 INSERT IGNORE INTO user_roles(user_id,role_id)
 SELECT u.id,r.id FROM users u JOIN roles r
@@ -139,20 +139,20 @@ WHERE (u.email='admin@shop.local' AND r.name='ROLE_ADMIN')
 
 -- Catalog
 INSERT INTO categories(name) VALUES ('Máy in'),('Máy scan')
-    ON DUPLICATE KEY UPDATE name=VALUES(name);
+ON DUPLICATE KEY UPDATE name=VALUES(name);
 INSERT INTO brands(name) VALUES ('HP'),('Canon'),('Epson')
-    ON DUPLICATE KEY UPDATE name=VALUES(name);
+ON DUPLICATE KEY UPDATE name=VALUES(name);
 
 INSERT INTO products(sku,name,category_id,brand_id,price,stock,warranty_months,is_active) VALUES
                                                                                               ('HP-LJ-1100','HP LaserJet 1100',(SELECT id FROM categories WHERE name='Máy in'),(SELECT id FROM brands WHERE name='HP'),2900000,20,12,1),
                                                                                               ('CANON-LBP2900','Canon LBP 2900',(SELECT id FROM categories WHERE name='Máy in'),(SELECT id FROM brands WHERE name='Canon'),2100000,12,12,1),
                                                                                               ('EPSON-V39','Epson Perfection V39',(SELECT id FROM categories WHERE name='Máy scan'),(SELECT id FROM brands WHERE name='Epson'),1900000,10,12,1)
-    ON DUPLICATE KEY UPDATE price=VALUES(price), stock=VALUES(stock);
+ON DUPLICATE KEY UPDATE price=VALUES(price), stock=VALUES(stock);
 
 -- Cart demo (user@shop.local có 1 giỏ 2 sp)
 SET @uid := (SELECT id FROM users WHERE email='user@shop.local');
 INSERT INTO carts(user_id,status) SELECT @uid,'ACTIVE'
-    WHERE NOT EXISTS(SELECT 1 FROM carts WHERE user_id=@uid AND status='ACTIVE');
+WHERE NOT EXISTS(SELECT 1 FROM carts WHERE user_id=@uid AND status='ACTIVE');
 SET @cid := (SELECT id FROM carts WHERE user_id=@uid AND status='ACTIVE' LIMIT 1);
 SET @p1 := (SELECT id FROM products WHERE sku='HP-LJ-1100');
 SET @p2 := (SELECT id FROM products WHERE sku='EPSON-V39');
@@ -180,4 +180,86 @@ WHERE ci.cart_id=@cid;
 INSERT INTO reviews(product_id,user_id,rating,title,content) VALUES
                                                                  ((SELECT id FROM products WHERE sku='HP-LJ-1100'), @uid, 5,'Tốt','In nhanh, rõ.'),
                                                                  ((SELECT id FROM products WHERE sku='EPSON-V39'),  @uid, 4,'Ổn','Scan đủ dùng.')
-    ON DUPLICATE KEY UPDATE rating=VALUES(rating), title=VALUES(title), content=VALUES(content);
+ON DUPLICATE KEY UPDATE rating=VALUES(rating), title=VALUES(title), content=VALUES(content);
+USE printshop;
+
+CREATE TABLE IF NOT EXISTS feedbacks (
+                                         id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                         user_id INT NULL,
+                                         order_id BIGINT NULL,
+                                         type ENUM('PRODUCT','SHOP','DELIVERY','OTHER') NOT NULL DEFAULT 'OTHER',
+                                         rating TINYINT NULL CHECK (rating BETWEEN 1 AND 5),
+                                         subject VARCHAR(150),
+                                         content TEXT NOT NULL,
+                                         created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                         CONSTRAINT fk_fb_user  FOREIGN KEY (user_id)  REFERENCES users(id)  ON DELETE SET NULL,
+                                         CONSTRAINT fk_fb_order FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+CREATE INDEX idx_fb_user   ON feedbacks(user_id);
+CREATE INDEX idx_fb_order  ON feedbacks(order_id);
+CREATE INDEX idx_fb_type   ON feedbacks(TYPE);
+
+USE printshop;
+
+-- Thêm cột ảnh (nếu chưa có)
+ALTER TABLE products
+    ADD COLUMN image_url VARCHAR(300) NULL AFTER name,
+    ADD COLUMN image_public_id VARCHAR(180) NULL AFTER image_url;
+
+-- Gán link ảnh Cloudinary trực tiếp
+UPDATE products
+SET image_public_id = 'printshop/hp-lj-1100',
+    image_url = 'https://res.cloudinary.com/printshop/image/upload/v1730000000/printshop/hp-lj-1100.jpg'
+WHERE sku='HP-LJ-1100';
+
+UPDATE products
+SET image_public_id = 'printshop/canon-lbp2900',
+    image_url = 'https://res.cloudinary.com/printshop/image/upload/v1730000000/printshop/canon-lbp2900.jpg'
+WHERE sku='CANON-LBP2900';
+
+UPDATE products
+SET image_public_id = 'printshop/epson-v39',
+    image_url = 'https://res.cloudinary.com/printshop/image/upload/v1730000000/printshop/epson-v39.jpg'
+WHERE sku='EPSON-V39';
+
+-- Thêm sản phẩm máy in & máy scan có sẵn link ảnh Cloudinary
+INSERT INTO products (sku, name, image_public_id, image_url, category_id, brand_id, price, stock, warranty_months, is_active)
+VALUES
+-- ===== MÁY IN =====
+('HP-DJ-2336','HP DeskJet 2336',
+ 'printshop/hp-dj-2336',
+ 'https://res.cloudinary.com/printshop/image/upload/v1730000000/printshop/hp-dj-2336.jpg',
+ (SELECT id FROM categories WHERE name='Máy in'),
+ (SELECT id FROM brands WHERE name='HP'),1590000,25,12,1),
+
+('CANON-G2010','Canon PIXMA G2010',
+ 'printshop/canon-g2010',
+ 'https://res.cloudinary.com/printshop/image/upload/v1730000000/printshop/canon-g2010.jpg',
+ (SELECT id FROM categories WHERE name='Máy in'),
+ (SELECT id FROM brands WHERE name='Canon'),3590000,16,12,1),
+
+('EPS-L3210','Epson EcoTank L3210',
+ 'printshop/epson-l3210',
+ 'https://res.cloudinary.com/printshop/image/upload/v1730000000/printshop/epson-l3210.jpg',
+ (SELECT id FROM categories WHERE name='Máy in'),
+ (SELECT id FROM brands WHERE name='Epson'),4290000,13,12,1),
+
+-- ===== MÁY SCAN =====
+('CANON-LIDE300','Canon CanoScan LiDE 300',
+ 'printshop/canon-lide300',
+ 'https://res.cloudinary.com/printshop/image/upload/v1730000000/printshop/canon-lide300.jpg',
+ (SELECT id FROM categories WHERE name='Máy scan'),
+ (SELECT id FROM brands WHERE name='Canon'),2190000,9,12,1),
+
+('EPS-DS-1630','Epson DS-1630 ADF',
+ 'printshop/epson-ds-1630',
+ 'https://res.cloudinary.com/printshop/image/upload/v1730000000/printshop/epson-ds-1630.jpg',
+ (SELECT id FROM categories WHERE name='Máy scan'),
+ (SELECT id FROM brands WHERE name='Epson'),5590000,6,12,1)
+ON DUPLICATE KEY UPDATE
+                     price=VALUES(price), stock=VALUES(stock),
+                     image_public_id=VALUES(image_public_id), image_url=VALUES(image_url),
+                     is_active=VALUES(is_active);
+
+
