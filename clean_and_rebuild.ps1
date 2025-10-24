@@ -41,3 +41,5 @@ if (Test-Path "mvnw.cmd") {
 
 Write-Host "🎉 Clean and rebuild completed!" -ForegroundColor Green
 Write-Host "Now you can run: mvn spring-boot:run" -ForegroundColor Cyan
+
+

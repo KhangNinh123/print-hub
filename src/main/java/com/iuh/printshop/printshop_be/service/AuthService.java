@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
-import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -31,12 +30,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final EmailService emailService;
-    
-    private final Random random = new Random();
-    
-    private String generateOtpCode() {
-        return String.format("%06d", random.nextInt(1000000));
-    }
+                                private final OtpServiceInterface otpService;
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
@@ -63,9 +57,21 @@ public class AuthService {
 
         User savedUser = userRepository.save(user);
 
-        // Generate OTP và gửi email (không lưu vào database)
-        String otpCode = generateOtpCode();
-        emailService.sendVerificationEmail(request.getEmail(), otpCode);
+        try {
+            // Generate OTP và lưu vào Redis/Memory, sau đó gửi email
+            System.out.println("=== DEBUG REGISTRATION OTP ===");
+            System.out.println("Generating OTP for email: " + request.getEmail());
+            String otpCode = otpService.generateAndStoreOtp(request.getEmail());
+            System.out.println("Generated OTP: " + otpCode);
+            System.out.println("Sending email...");
+            emailService.sendVerificationEmail(request.getEmail(), otpCode);
+            System.out.println("Email sent successfully!");
+            System.out.println("=== END DEBUG REGISTRATION OTP ===");
+        } catch (Exception e) {
+            // Nếu có lỗi, vẫn cho phép đăng ký nhưng không gửi OTP
+            System.err.println("OTP service error during registration: " + e.getMessage());
+            throw new RuntimeException("Không thể tạo mã OTP. Vui lòng thử lại sau.");
+        }
 
         // Return response without JWT token (user needs to verify OTP first)
         return new AuthResponse(
@@ -141,28 +147,49 @@ public class AuthService {
                         .collect(Collectors.toSet())
         );
     }
-
-    @Transactional
-    public boolean verifyEmail(String token) {
-        // Method này giữ lại để tương thích ngược, nhưng không còn sử dụng
-        return true;
-    }
+    
     
     @Transactional
     public boolean verifyEmailWithOtp(String email, String otpCode) {
+        System.out.println("=== DEBUG OTP VERIFICATION ===");
+        System.out.println("Email: " + email);
+        System.out.println("OTP Code: " + otpCode);
+        
         // Find user by email
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
 
-        // Kiểm tra đơn giản: nếu OTP có 6 chữ số thì cho phép kích hoạt
-        if (otpCode == null || otpCode.length() != 6 || !otpCode.matches("\\d{6}")) {
-            throw new RuntimeException("Mã OTP không hợp lệ");
+        System.out.println("User found: " + user.getEmail());
+        System.out.println("User isActive: " + user.getIsActive());
+
+        // Kiểm tra có bị khóa do thử sai quá nhiều không
+        if (otpService.isBlocked(email)) {
+            System.out.println("User is blocked");
+            throw new RuntimeException("Tài khoản đã bị khóa do nhập sai OTP quá nhiều lần. Vui lòng thử lại sau 30 phút.");
+        }
+
+        System.out.println("User is not blocked");
+        System.out.println("Has active OTP: " + otpService.hasActiveOtp(email));
+        System.out.println("Attempts: " + otpService.getAttempts(email));
+
+        // Xác thực OTP với Redis/Memory
+        boolean isValid = otpService.verifyOtp(email, otpCode);
+        
+        System.out.println("OTP verification result: " + isValid);
+        
+        if (!isValid) {
+            int attempts = otpService.getAttempts(email);
+            int remainingAttempts = 5 - attempts;
+            System.out.println("OTP verification failed. Remaining attempts: " + remainingAttempts);
+            throw new RuntimeException("Mã OTP không đúng. Bạn còn " + remainingAttempts + " lần thử.");
         }
 
         // Kích hoạt tài khoản: chỉ cần is_active = true
         user.setIsActive(true);
         userRepository.save(user);
 
+        System.out.println("Account activated successfully!");
+        System.out.println("=== END DEBUG ===");
         return true;
     }
     
@@ -175,9 +202,37 @@ public class AuthService {
             throw new RuntimeException("Tài khoản đã được kích hoạt");
         }
 
-        // Generate new OTP và gửi email (không lưu vào database)
-        String otpCode = generateOtpCode();
+        // Kiểm tra có bị khóa do thử sai quá nhiều không
+        if (otpService.isBlocked(email)) {
+            throw new RuntimeException("Tài khoản đã bị khóa do nhập sai OTP quá nhiều lần. Vui lòng thử lại sau 30 phút.");
+        }
+
+        // Generate new OTP và lưu vào Redis (ghi đè OTP cũ), sau đó gửi email
+        String otpCode = otpService.generateAndStoreOtp(email);
         emailService.sendVerificationEmail(email, otpCode);
+    }
+    
+    // Các method để hỗ trợ OTP status endpoint
+    public boolean hasActiveOtp(String email) {
+        return otpService.hasActiveOtp(email);
+    }
+    
+    public int getAttempts(String email) {
+        return otpService.getAttempts(email);
+    }
+    
+    public long getOtpTimeToLive(String email) {
+        return otpService.getOtpTimeToLive(email);
+    }
+    
+    public boolean isBlocked(String email) {
+        return otpService.isBlocked(email);
+    }
+    
+    public boolean isUserActive(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng với email: " + email));
+        return user.getIsActive();
     }
     
 }
