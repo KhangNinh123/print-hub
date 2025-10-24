@@ -1,10 +1,11 @@
-package com.iuh.printshop.printshop_be.controller;
+package com.iuh.printshop.printshop_be.Controller;
 
 import com.iuh.printshop.printshop_be.entity.Brand;
 import com.iuh.printshop.printshop_be.service.BrandService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,6 +17,7 @@ public class BrandController {
     private final BrandService brandService;
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Brand> createBrand(@RequestBody Brand brand) {
         Brand savedBrand = brandService.createBrand(brand);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedBrand);
@@ -35,6 +37,7 @@ public class BrandController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Brand> updateBrand(@PathVariable Integer id, @RequestBody Brand brand) {
         return brandService.updateBrand(id, brand)
                 .map(ResponseEntity::ok)
@@ -42,6 +45,7 @@ public class BrandController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteBrand(@PathVariable Integer id) {
         if (brandService.deleteBrand(id)) {
             return ResponseEntity.noContent().build();
