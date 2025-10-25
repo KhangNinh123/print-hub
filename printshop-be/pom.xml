@@ -12,7 +12,11 @@
 	<artifactId>printshop-be</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>print-hub-backend</name>
+<<<<<<< HEAD
 	<description>Print Hub - Backend API for printer and scanner sales platform</description>
+=======
+	<description>Print Hub - Backend Spring Boot</description>
+>>>>>>> huynhtannha-dev
 	<url/>
 	<licenses>
 		<license/>
@@ -45,6 +49,10 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis</artifactId>
 		</dependency>
 
 		<dependency>
@@ -89,6 +97,13 @@
 			<version>0.12.3</version>
 			<scope>runtime</scope>
 		</dependency>
+<<<<<<< HEAD
+=======
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
+>>>>>>> huynhtannha-dev
 
 	</dependencies>
 

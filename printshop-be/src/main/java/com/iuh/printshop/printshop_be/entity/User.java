@@ -26,7 +26,11 @@ public class User implements UserDetails {
     @Column(name = "email", nullable = false, unique = true, length = 120)
     private String email;
 
+<<<<<<< HEAD
     @Column(name = "password_hash", nullable = false, length = 200)
+=======
+                                            @Column(name = "password_hash", nullable = false, length = 200)
+>>>>>>> huynhtannha-dev
     private String passwordHash;
 
     @Column(name = "full_name", nullable = false, length = 120)
