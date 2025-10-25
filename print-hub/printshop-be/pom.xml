@@ -12,7 +12,7 @@
 	<artifactId>printshop-be</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>print-hub-backend</name>
-	<description>Print Hub - Backend API for printer and scanner sales platform</description>
+	<description>Print Hub - Backend Spring Boot</description>
 	<url/>
 	<licenses>
 		<license/>
