@@ -37,6 +37,9 @@ CREATE TABLE IF NOT EXISTS user_roles (
 
 -- 2) Catalog (Brands, Categories, Products, Product Images)
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 1dd75971948645bfb75c2c51c4885108f3721f9e
 -- Updated Brand table with description
 CREATE TABLE IF NOT EXISTS brands (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -67,6 +70,7 @@ CREATE TABLE IF NOT EXISTS products (
   CONSTRAINT fk_products_brand FOREIGN KEY (brand_id) REFERENCES brands(id) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT chk_products_price CHECK (price >= 0),
   CONSTRAINT chk_products_stock CHECK (stock_quantity >= 0)
+<<<<<<< HEAD
 =======
 CREATE TABLE IF NOT EXISTS brands (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -96,6 +100,8 @@ CREATE TABLE IF NOT EXISTS products (
   CONSTRAINT chk_products_price CHECK (price >= 0),
   CONSTRAINT chk_products_stock CHECK (stock >= 0)
 >>>>>>> 2e14c26e8786d752acc647e5941f392c7cc2c4d9
+=======
+>>>>>>> 1dd75971948645bfb75c2c51c4885108f3721f9e
 ) ENGINE=InnoDB;
 
 CREATE INDEX idx_products_category ON products(category_id);
@@ -103,12 +109,18 @@ CREATE INDEX idx_products_brand ON products(brand_id);
 CREATE INDEX idx_products_price ON products(price);
 CREATE FULLTEXT INDEX ftx_products_name ON products(name);
 <<<<<<< HEAD
+<<<<<<< HEAD
 CREATE FULLTEXT INDEX ftx_products_description ON products(description);
 
 -- Product Images table (keeping original structure)
 =======
 
 >>>>>>> 2e14c26e8786d752acc647e5941f392c7cc2c4d9
+=======
+CREATE FULLTEXT INDEX ftx_products_description ON products(description);
+
+-- Product Images table (keeping original structure)
+>>>>>>> 1dd75971948645bfb75c2c51c4885108f3721f9e
 CREATE TABLE IF NOT EXISTS product_images (
   id INT AUTO_INCREMENT PRIMARY KEY,
   product_id INT NOT NULL,
@@ -118,10 +130,14 @@ CREATE TABLE IF NOT EXISTS product_images (
 ) ENGINE=InnoDB;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 -- 3) Orders (keeping original structure)
 =======
 -- 3) Orders
 >>>>>>> 2e14c26e8786d752acc647e5941f392c7cc2c4d9
+=======
+-- 3) Orders (keeping original structure)
+>>>>>>> 1dd75971948645bfb75c2c51c4885108f3721f9e
 CREATE TABLE IF NOT EXISTS orders (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   code VARCHAR(20) NOT NULL UNIQUE, -- e.g., PS-2025-000123
@@ -181,6 +197,9 @@ INSERT INTO roles(name) VALUES ('ROLE_ADMIN'), ('ROLE_CUSTOMER')
   ON DUPLICATE KEY UPDATE name = VALUES(name);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 1dd75971948645bfb75c2c51c4885108f3721f9e
 -- Updated brand data with descriptions
 INSERT INTO brands(name, description) VALUES 
   ('HP', 'Hewlett-Packard - Thương hiệu máy in và máy scan hàng đầu thế giới'),
@@ -211,6 +230,7 @@ ON DUPLICATE KEY UPDATE
   description = VALUES(description), 
   price = VALUES(price), 
   stock_quantity = VALUES(stock_quantity);
+<<<<<<< HEAD
 =======
 INSERT INTO brands(name) VALUES ('HP'), ('Canon'), ('Epson')
   ON DUPLICATE KEY UPDATE name = VALUES(name);
@@ -233,6 +253,8 @@ VALUES
   ('EPSON-DS-1630','Epson DS-1630',         (SELECT id FROM categories WHERE name='Máy scan'),(SELECT id FROM brands WHERE name='Epson'), 5200000, 5,  12, 'Flatbed + ADF', NULL)
 ON DUPLICATE KEY UPDATE price = VALUES(price), stock = VALUES(stock);
 >>>>>>> 2e14c26e8786d752acc647e5941f392c7cc2c4d9
+=======
+>>>>>>> 1dd75971948645bfb75c2c51c4885108f3721f9e
 
 -- Helpful views (optional)
 -- CREATE VIEW v_order_summary AS
@@ -243,6 +265,10 @@ ON DUPLICATE KEY UPDATE price = VALUES(price), stock = VALUES(stock);
 -- - Seed user/admin should be created via application (register + role assign) to ensure password hashing (BCrypt).
 -- - Consider adding triggers for stock deduction upon status change if you handle stock at DB-level (else, do it in service layer).
 <<<<<<< HEAD
+<<<<<<< HEAD
 -- - Updated schema to match current Entity classes with description fields and renamed columns.
 =======
 >>>>>>> 2e14c26e8786d752acc647e5941f392c7cc2c4d9
+=======
+-- - Updated schema to match current Entity classes with description fields and renamed columns.
+>>>>>>> 1dd75971948645bfb75c2c51c4885108f3721f9e
