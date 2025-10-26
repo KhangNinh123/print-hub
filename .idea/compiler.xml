@@ -8,17 +8,8 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
-<<<<<<< HEAD
-<<<<<<< HEAD
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.40/lombok-1.18.40.jar" />
-=======
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" />
->>>>>>> b84261e48b0427401fd406515e437276f7322fbb
-=======
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.40/lombok-1.18.40.jar" />
->>>>>>> 2e14c26e8786d752acc647e5941f392c7cc2c4d9
         </processorPath>
-        <module name="printshop-be" />
       </profile>
     </annotationProcessing>
   </component>
