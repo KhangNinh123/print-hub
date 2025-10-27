@@ -210,17 +210,17 @@ ALTER TABLE products
 -- Gán link ảnh Cloudinary trực tiếp
 UPDATE products
 SET image_public_id = 'printshop/hp-lj-1100',
-    image_url = 'https://res.cloudinary.com/printshop/image/upload/v1730000000/printshop/hp-lj-1100.jpg'
+    image_url = 'https://res.cloudinary.com/drgoc1nwy/image/upload/v1761529243/HP_LaserJet_1100_yvk4uc.png'
 WHERE sku='HP-LJ-1100';
 
 UPDATE products
 SET image_public_id = 'printshop/canon-lbp2900',
-    image_url = 'https://res.cloudinary.com/printshop/image/upload/v1730000000/printshop/canon-lbp2900.jpg'
+    image_url = 'https://res.cloudinary.com/drgoc1nwy/image/upload/v1761529242/Canon_LBP_2900_bgzth6.png'
 WHERE sku='CANON-LBP2900';
 
 UPDATE products
 SET image_public_id = 'printshop/epson-v39',
-    image_url = 'https://res.cloudinary.com/printshop/image/upload/v1730000000/printshop/epson-v39.jpg'
+    image_url = 'https://res.cloudinary.com/drgoc1nwy/image/upload/v1761529242/Epson_Perfection_V39_ah3wz5.png'
 WHERE sku='EPSON-V39';
 
 -- Thêm sản phẩm máy in & máy scan có sẵn link ảnh Cloudinary
@@ -229,37 +229,36 @@ VALUES
 -- ===== MÁY IN =====
 ('HP-DJ-2336','HP DeskJet 2336',
  'printshop/hp-dj-2336',
- 'https://res.cloudinary.com/printshop/image/upload/v1730000000/printshop/hp-dj-2336.jpg',
+ 'https://res.cloudinary.com/drgoc1nwy/image/upload/v1761529243/HP_DeskJet_2336_m944hr.png',
  (SELECT id FROM categories WHERE name='Máy in'),
  (SELECT id FROM brands WHERE name='HP'),1590000,25,12,1),
 
 ('CANON-G2010','Canon PIXMA G2010',
  'printshop/canon-g2010',
- 'https://res.cloudinary.com/printshop/image/upload/v1730000000/printshop/canon-g2010.jpg',
+ 'https://res.cloudinary.com/drgoc1nwy/image/upload/v1761529242/Canon_PIXMA_G2010_h6jkhq.png',
  (SELECT id FROM categories WHERE name='Máy in'),
  (SELECT id FROM brands WHERE name='Canon'),3590000,16,12,1),
 
 ('EPS-L3210','Epson EcoTank L3210',
  'printshop/epson-l3210',
- 'https://res.cloudinary.com/printshop/image/upload/v1730000000/printshop/epson-l3210.jpg',
+ 'https://res.cloudinary.com/drgoc1nwy/image/upload/v1761529242/Epson_EcoTank_L3210_zkg8ds.png',
  (SELECT id FROM categories WHERE name='Máy in'),
  (SELECT id FROM brands WHERE name='Epson'),4290000,13,12,1),
 
 -- ===== MÁY SCAN =====
 ('CANON-LIDE300','Canon CanoScan LiDE 300',
  'printshop/canon-lide300',
- 'https://res.cloudinary.com/printshop/image/upload/v1730000000/printshop/canon-lide300.jpg',
+ 'https://res.cloudinary.com/drgoc1nwy/image/upload/v1761529243/CanoScan_LiDE_300_nwk2zs.png',
  (SELECT id FROM categories WHERE name='Máy scan'),
  (SELECT id FROM brands WHERE name='Canon'),2190000,9,12,1),
 
 ('EPS-DS-1630','Epson DS-1630 ADF',
  'printshop/epson-ds-1630',
- 'https://res.cloudinary.com/printshop/image/upload/v1730000000/printshop/epson-ds-1630.jpg',
+ 'https://res.cloudinary.com/drgoc1nwy/image/upload/v1761529242/Epson_DS-1630_yfr0ia.jpg',
  (SELECT id FROM categories WHERE name='Máy scan'),
  (SELECT id FROM brands WHERE name='Epson'),5590000,6,12,1)
 ON DUPLICATE KEY UPDATE
                      price=VALUES(price), stock=VALUES(stock),
                      image_public_id=VALUES(image_public_id), image_url=VALUES(image_url),
                      is_active=VALUES(is_active);
-
 
