@@ -7,11 +7,15 @@ import com.iuh.printshop.printshop_be.repository.BrandRepository;
 import com.iuh.printshop.printshop_be.repository.CategoryRepository;
 import com.iuh.printshop.printshop_be.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -54,8 +58,50 @@ public class ProductService {
         return productRepository.findAll();
     }
 
+    // Paginated get all products
+    public Page<Product> getAllProducts(Pageable pageable) {
+        return productRepository.findAll(pageable);
+    }
+
     public Optional<Product> getProductById(Integer id) {
         return productRepository.findById(id);
+    }
+
+    // Search products by name
+    public Page<Product> searchByName(String name, Pageable pageable) {
+        return productRepository.findByNameContainingIgnoreCase(name, pageable);
+    }
+
+    // Get products by category
+    public Page<Product> getProductsByCategory(Integer categoryId, Pageable pageable) {
+        return productRepository.findByCategoryId(categoryId, pageable);
+    }
+
+    // Get products by brand
+    public Page<Product> getProductsByBrand(Integer brandId, Pageable pageable) {
+        return productRepository.findByBrandId(brandId, pageable);
+    }
+
+    // Get products by price range
+    public Page<Product> getProductsByPriceRange(BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable) {
+        return productRepository.findByPriceBetween(minPrice, maxPrice, pageable);
+    }
+
+    // Get products in stock
+    public Page<Product> getProductsInStock(Integer quantity, Pageable pageable) {
+        return productRepository.findByStockQuantityGreaterThan(quantity, pageable);
+    }
+
+    // Advanced search with multiple filters
+    public Page<Product> searchProducts(
+            String name,
+            Integer categoryId,
+            Integer brandId,
+            BigDecimal minPrice,
+            BigDecimal maxPrice,
+            Pageable pageable
+    ) {
+        return productRepository.searchProducts(name, categoryId, brandId, minPrice, maxPrice, pageable);
     }
 
     public Optional<Product> updateProduct(Integer id, Product updatedProduct) {
