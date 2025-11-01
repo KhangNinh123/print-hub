@@ -10,4 +10,5 @@ public class CheckoutRequest {
     private PaymentMethod method; // VNPAY / MOMO / STRIPE / COD
     private String successUrl;    // Optional redirect
     private String cancelUrl;     // Optional
+    private String discountCode;  // Optional discount code
 }

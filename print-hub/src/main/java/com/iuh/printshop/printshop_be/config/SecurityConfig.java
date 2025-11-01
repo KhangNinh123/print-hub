@@ -51,6 +51,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/categories/**").permitAll()
                         .requestMatchers("/api/brands/**").permitAll()
                         .requestMatchers("/api/cart/**").permitAll()
+                        .requestMatchers("/api/discounts/**").permitAll()
+                        .requestMatchers("/api/promotions/**").permitAll()
                         .requestMatchers("/api/users").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )

@@ -1,4 +1,3 @@
-
 -- printshop_mariadb.sql
 -- Schema for "Web giới thiệu & bán máy in / máy scan" (MariaDB)
 -- Engine: InnoDB, Charset: utf8mb4
@@ -98,6 +97,63 @@ CREATE TABLE IF NOT EXISTS cart_items (
   CONSTRAINT chk_cart_items_price CHECK (price_at_add >= 0)
 ) ENGINE=InnoDB;
 
+-- 2c) Discount Codes
+CREATE TABLE IF NOT EXISTS discount_codes (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  code VARCHAR(50) NOT NULL UNIQUE,
+  description VARCHAR(255),
+  discount_type VARCHAR(20) NOT NULL, -- 'PERCENTAGE' or 'FIXED'
+  discount_value DECIMAL(16,2) NOT NULL,
+  min_order_value DECIMAL(16,2),
+  max_discount DECIMAL(16,2),
+  usage_limit INT,
+  used_count INT NOT NULL DEFAULT 0,
+  start_date TIMESTAMP NOT NULL,
+  end_date TIMESTAMP NOT NULL,
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT chk_discount_codes_value CHECK (discount_value > 0),
+  CONSTRAINT chk_discount_codes_dates CHECK (start_date < end_date)
+) ENGINE=InnoDB;
+
+CREATE INDEX idx_discount_codes_code ON discount_codes(code);
+CREATE INDEX idx_discount_codes_active ON discount_codes(is_active, start_date, end_date);
+
+-- 2d) Promotions
+CREATE TABLE IF NOT EXISTS promotions (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  description VARCHAR(255),
+  discount_type VARCHAR(20) NOT NULL, -- 'PERCENTAGE' or 'FIXED'
+  discount_value DECIMAL(16,2) NOT NULL,
+  min_order_value DECIMAL(16,2),
+  max_discount DECIMAL(16,2),
+  start_date TIMESTAMP NOT NULL,
+  end_date TIMESTAMP NOT NULL,
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT chk_promotions_value CHECK (discount_value > 0),
+  CONSTRAINT chk_promotions_dates CHECK (start_date < end_date)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS promotion_categories (
+  promotion_id INT NOT NULL,
+  category_id INT NOT NULL,
+  PRIMARY KEY (promotion_id, category_id),
+  CONSTRAINT fk_promotion_categories_promotion FOREIGN KEY (promotion_id) REFERENCES promotions(id) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_promotion_categories_category FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS promotion_products (
+  promotion_id INT NOT NULL,
+  product_id INT NOT NULL,
+  PRIMARY KEY (promotion_id, product_id),
+  CONSTRAINT fk_promotion_products_promotion FOREIGN KEY (promotion_id) REFERENCES promotions(id) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_promotion_products_product FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
 -- 3) Orders
 CREATE TABLE IF NOT EXISTS orders (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -177,6 +233,33 @@ VALUES
   ('HP-LJ-107w',  'HP Laser 107w',          (SELECT id FROM categories WHERE name='Máy in'),  (SELECT id FROM brands WHERE name='HP'),    2400000, 16, 12, 'Laser, WiFi, A4', NULL),
   ('EPSON-DS-1630','Epson DS-1630',         (SELECT id FROM categories WHERE name='Máy scan'),(SELECT id FROM brands WHERE name='Epson'), 5200000, 5,  12, 'Flatbed + ADF', NULL)
 ON DUPLICATE KEY UPDATE price = VALUES(price), stock = VALUES(stock);
+
+-- Sample discount codes
+INSERT INTO discount_codes(code, description, discount_type, discount_value, min_order_value, usage_limit, start_date, end_date)
+VALUES
+  ('WELCOME10', 'Giảm 10% cho khách hàng mới', 'PERCENTAGE', 10.00, 1000000, 100, NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY)),
+  ('SAVE500K', 'Giảm 500k cho đơn hàng từ 5 triệu', 'FIXED', 500000.00, 5000000, 50, NOW(), DATE_ADD(NOW(), INTERVAL 15 DAY))
+ON DUPLICATE KEY UPDATE discount_value = VALUES(discount_value);
+
+-- Sample promotions
+INSERT INTO promotions(name, description, discount_type, discount_value, min_order_value, start_date, end_date)
+VALUES
+  ('Khuyến mãi máy in', 'Giảm 15% cho tất cả máy in', 'PERCENTAGE', 15.00, 2000000, NOW(), DATE_ADD(NOW(), INTERVAL 7 DAY)),
+  ('Flash Sale Scanner', 'Giảm 200k cho máy scan', 'FIXED', 200000.00, NULL, NOW(), DATE_ADD(NOW(), INTERVAL 3 DAY))
+ON DUPLICATE KEY UPDATE discount_value = VALUES(discount_value);
+
+-- Link promotions to categories
+INSERT INTO promotion_categories(promotion_id, category_id)
+SELECT p.id, c.id
+FROM promotions p, categories c
+WHERE p.name = 'Khuyến mãi máy in' AND c.name = 'Máy in'
+ON DUPLICATE KEY UPDATE promotion_id = VALUES(promotion_id);
+
+INSERT INTO promotion_categories(promotion_id, category_id)
+SELECT p.id, c.id
+FROM promotions p, categories c
+WHERE p.name = 'Flash Sale Scanner' AND c.name = 'Máy scan'
+ON DUPLICATE KEY UPDATE promotion_id = VALUES(promotion_id);
 
 -- Helpful views (optional)
 -- CREATE VIEW v_order_summary AS

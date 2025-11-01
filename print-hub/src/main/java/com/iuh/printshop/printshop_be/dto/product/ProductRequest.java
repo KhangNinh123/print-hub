@@ -15,25 +15,25 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductRequest {
-    @NotBlank(message = "Product name cannot be empty")
+    @NotBlank(message = "Product name không được trống")
     private String name;
 
     private String description;
 
-    @NotNull(message = "Price cannot be null")
-    @Positive(message = "Price must be positive")
+    @NotNull(message = "Price không được trống")
+    @Positive(message = "Price phải dương")
     private BigDecimal price;
 
-    @NotNull(message = "Stock quantity cannot be null")
-    @Positive(message = "Stock quantity must be positive or zero")
+    @NotNull(message = "Stock quantity không được trống")
+    @Positive(message = "Stock quantity phải dương hoặc bằng 0")
     private Integer stockQuantity;
 
     private String imageUrl;
 
-    @NotNull(message = "Category ID cannot be null")
+    @NotNull(message = "Category ID không được trống")
     private Integer categoryId;
 
-    @NotNull(message = "Brand ID cannot be null")
+    @NotNull(message = "Brand ID không được trống")
     private Integer brandId;
 }
 

@@ -10,12 +10,16 @@ import com.iuh.printshop.printshop_be.entity.*;
 import com.iuh.printshop.printshop_be.repository.OrderRepository;
 import com.iuh.printshop.printshop_be.repository.PaymentRepository;
 import com.iuh.printshop.printshop_be.service.CheckoutService;
+import com.iuh.printshop.printshop_be.service.DiscountService;
 import com.iuh.printshop.printshop_be.service.PaymentGateway;
+import com.iuh.printshop.printshop_be.service.PromotionService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +32,8 @@ public class CheckoutServiceImpl implements CheckoutService {
     private final OrderRepository orderRepository;
     private final PaymentRepository paymentRepository;
     private final Map<PaymentMethod, PaymentGateway> paymentGateways;
+    private final DiscountService discountService;
+    private final PromotionService promotionService;
 
     @Transactional
     @Override
@@ -38,10 +44,48 @@ public class CheckoutServiceImpl implements CheckoutService {
             throw new IllegalStateException("Cart is empty");
         }
 
+        // Calculate original total
+        BigDecimal originalTotal = cart.getTotal();
+
+        // Apply discount code if provided
+        BigDecimal discountAmount = BigDecimal.ZERO;
+        String appliedDiscountCode = null;
+        String discountDescription = null;
+
+        if (request.getDiscountCode() != null && !request.getDiscountCode().trim().isEmpty()) {
+            try {
+                var discountResult = discountService.applyDiscountCode(request.getDiscountCode(), originalTotal);
+                discountAmount = discountResult.getDiscountAmount();
+                appliedDiscountCode = discountResult.getDiscountCode();
+                discountDescription = discountResult.getDiscountDescription();
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Invalid discount code: " + request.getDiscountCode());
+            }
+        }
+
+        // Apply promotions
+        List<Integer> productIds = cart.getItems().stream()
+                .map(ci -> ci.getProduct().getId())
+                .toList();
+        List<Integer> categoryIds = cart.getItems().stream()
+                .map(ci -> ci.getProduct().getCategory().getId())
+                .distinct()
+                .toList();
+
+        var promotionResult = promotionService.calculatePromotionDiscount(originalTotal.subtract(discountAmount), productIds, categoryIds);
+        BigDecimal promotionDiscount = promotionResult.getDiscountAmount();
+
+        // Calculate final total
+        BigDecimal finalTotal = originalTotal.subtract(discountAmount).subtract(promotionDiscount);
+
         // Snapshot Cart -> Order
         Order order = new Order();
         order.setUser(cart.getUser());
         order.setStatus(OrderStatus.PENDING);
+        order.setTotal(finalTotal);
+        order.setCurrency("VND");
+        order.setNote("Discount: " + (appliedDiscountCode != null ? appliedDiscountCode : "None") +
+                     ", Promotion: " + (promotionResult.getDiscountCode() != null ? promotionResult.getDiscountCode() : "None"));
 
         List<OrderItem> snapshot = new ArrayList<>();
         for (CartItem ci : cart.getItems()) {
@@ -55,7 +99,6 @@ public class CheckoutServiceImpl implements CheckoutService {
             snapshot.add(oi);
         }
         order.setItems(snapshot);
-        order.recalcTotal();
         order = orderRepository.save(order);
 
         // Create Payment
@@ -63,7 +106,7 @@ public class CheckoutServiceImpl implements CheckoutService {
                 .order(order)
                 .method(request.getMethod())
                 .status(request.getMethod() == PaymentMethod.COD ? PaymentStatus.COD_PENDING : PaymentStatus.UNPAID)
-                .amount(order.getTotal())
+                .amount(finalTotal)
                 .currency(order.getCurrency())
                 .build();
 
@@ -85,7 +128,7 @@ public class CheckoutServiceImpl implements CheckoutService {
                 .method(payment.getMethod())
                 .status(payment.getStatus())
                 .paymentUrlOrClientSecret(payment.getCheckoutUrlOrClientSecret())
-                .amount(payment.getAmount())
+                .amount(finalTotal)
                 .build();
     }
 }
