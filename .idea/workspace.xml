@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="16471623-dffb-4bf9-a1ce-c78f11d84aab" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/application.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/PrintshopBeApplication.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/config/ApplicationConfig.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/config/DataInitializer.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/config/SecurityConfig.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/controller/AuthController.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/controller/BrandController.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/controller/CartController.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/controller/CategoryController.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/controller/ProductController.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/controller/UserController.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/dto/auth/AuthResponse.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/dto/auth/LoginRequest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/dto/auth/RegisterRequest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/dto/auth/RegisterResponse.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/dto/cart/AddToCartRequest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/dto/cart/CartItemResponse$CartItemResponseBuilder.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/dto/cart/CartItemResponse.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/dto/cart/CartResponse$CartResponseBuilder.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/dto/cart/CartResponse.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/dto/cart/UpdateCartItemRequest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/dto/product/ProductRequest$ProductRequestBuilder.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/dto/product/ProductRequest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/dto/product/ProductResponse$ProductResponseBuilder.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/dto/product/ProductResponse.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/dto/user/UserResponse.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/entity/Brand$BrandBuilder.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/entity/Brand.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/entity/Cart$CartBuilder.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/entity/Cart.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/entity/CartItem$CartItemBuilder.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/entity/CartItem.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/entity/Category$CategoryBuilder.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/entity/Category.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/entity/Product$ProductBuilder.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/entity/Product.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/entity/Role.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/entity/User$UserBuilder.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/entity/User.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/entity/UserRole.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/entity/UserRoleId.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/repository/BrandRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/repository/CartItemRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/repository/CartRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/repository/CategoryRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/repository/ProductRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/repository/RoleRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/repository/UserRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/repository/UserRoleRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/security/JwtAuthenticationFilter.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/service/AuthService.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/service/BrandService.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/service/CartService.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/service/CategoryService.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/service/EmailService.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/service/JwtService.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/service/ProductService.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/service/UserService.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/classes/com/iuh/printshop/printshop_be/service/impl/CartServiceImpl.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/print-hub/target/test-classes/com/iuh/printshop/printshop_be/PrintshopBeApplicationTests.class" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 3
+}]]></component>
+  <component name="ProjectId" id="34rJwci2IuMi3GAEc68V4QgjIbD" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "Spring Boot.PrintshopBeApplication.executor": "Profiler#1",
+    "git-widget-placeholder": "huong",
+    "kotlin-language-version-configured": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RunManager">
+    <configuration name="PrintshopBeApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="printshop-be" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.iuh.printshop.printshop_be.PrintshopBeApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-28b599e66164-intellij.indexing.shared.core-IU-242.24807.4" />
+        <option value="bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-IU-242.24807.4" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="16471623-dffb-4bf9-a1ce-c78f11d84aab" name="Changes" comment="" />
+      <created>1761966001778</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1761966001778</updated>
+      <workItem from="1761966006347" duration="669000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

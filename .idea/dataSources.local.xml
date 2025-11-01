@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="dataSourceStorageLocal" created-in="IU-242.24807.4">
+    <data-source name="@localhost" uuid="e6d52769-1985-4acf-84fb-b7ecc36243c5">
+      <database-info product="" version="" jdbc-version="" driver-name="" driver-version="" dbms="MARIADB" />
+      <schema-mapping />
+    </data-source>
+    <data-source name="printshop@localhost" uuid="4926302e-c803-43e2-a957-24a407ae5881">
+      <database-info product="" version="" jdbc-version="" driver-name="" driver-version="" dbms="MARIADB" />
+      <schema-mapping />
+    </data-source>
+  </component>
+</project>

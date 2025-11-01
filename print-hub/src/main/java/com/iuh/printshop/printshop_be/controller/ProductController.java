@@ -2,9 +2,11 @@ package com.iuh.printshop.printshop_be.controller;
 
 import com.iuh.printshop.printshop_be.dto.product.ProductRequest;
 import com.iuh.printshop.printshop_be.dto.product.ProductResponse;
+import com.iuh.printshop.printshop_be.entity.Product;
 import com.iuh.printshop.printshop_be.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -64,6 +66,13 @@ public class ProductController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();
+    }
+
+    //Phan trang
+    @GetMapping
+    public Page<Product> getProducts(@RequestParam(defaultValue = "0") int page,
+                                     @RequestParam(defaultValue = "10") int size){
+        return productService.getProducts(page, size)
     }
 }
 
