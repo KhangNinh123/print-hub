@@ -7,6 +7,9 @@ import com.iuh.printshop.printshop_be.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -85,5 +88,31 @@ public class ProductController {
     ){
         return productService.sortBy(page, size, sortBy, direction);
     }
+
+    @GetMapping("/filter")
+    public Page<Product> filterProducts(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Integer categoryId,
+            @RequestParam(required = false) Integer brandId,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false) Boolean inStock,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction
+    ){
+        Pageable pageable = PageRequest.of(page, size,
+                direction.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending());
+
+        Page<Product> products = productService.filterProduct(
+                keyword, categoryId, brandId, minPrice, maxPrice, inStock, page, size, sortBy, direction
+        );
+
+        return products;
+
+    }
+
+
 }
 

@@ -132,5 +132,29 @@ public class ProductService {
         Pageable pageable = PageRequest.of(page, size, sort);
         return productRepository.findAll(pageable);
     }
+
+    public Page<Product> filterProduct(
+            String keyword,
+            int categoryId,
+            int brandId,
+            double minPrice,
+            double maxPrice,
+            boolean inStock,
+            int page,
+            int size,
+            String sortBy,
+            String direction
+    ){
+        Sort sort = direction.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<Product> result = productRepository.filterProducts(
+                keyword, categoryId, brandId, minPrice, maxPrice, inStock, pageable
+        );
+
+        return result;
+    }
 }
 
