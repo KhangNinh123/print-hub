@@ -69,10 +69,21 @@ public class ProductController {
     }
 
     //Phan trang
-    @GetMapping
+    @GetMapping("/page")
     public Page<Product> getProducts(@RequestParam(defaultValue = "0") int page,
                                      @RequestParam(defaultValue = "10") int size){
-        return productService.getProducts(page, size)
+        return productService.getProducts(page, size);
+    }
+
+//    Sort dong
+    @GetMapping("/sort")
+    public Page<Product> sortByProducts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction
+    ){
+        return productService.sortBy(page, size, sortBy, direction);
     }
 }
 
